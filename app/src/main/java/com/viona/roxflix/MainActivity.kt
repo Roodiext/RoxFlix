@@ -11,11 +11,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.viona.roxflix.data.repository.MovieRepository
 import com.viona.roxflix.ui.screens.DetailScreen
+import com.viona.roxflix.ui.screens.GenreScreen
 import com.viona.roxflix.ui.screens.HomeScreen
 import com.viona.roxflix.ui.screens.HomeViewModel
 import com.viona.roxflix.ui.screens.MovieViewModel
 import com.viona.roxflix.ui.screens.SearchScreen
-import com.viona.roxflix.ui.screens.GenreScreen
+import com.viona.roxflix.ui.screens.SearchViewModel
 import com.viona.roxflix.ui.theme.RoxFlixTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,18 +27,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RoxFlixTheme {
+
                 val navController = rememberNavController()
                 val repo = remember { MovieRepository(API_KEY) }
 
-                // Use HomeViewModel for HomeScreen (must match HomeScreen signature)
+                // ViewModels
                 val homeViewModel = remember { HomeViewModel(repo) }
-
-                // If you still use MovieViewModel elsewhere you can keep/create it
                 val movieViewModel = remember { MovieViewModel(repo) }
+                val searchViewModel = remember { SearchViewModel(repo) }
 
-                NavHost(navController = navController, startDestination = "home") {
+                NavHost(
+                    navController = navController,
+                    startDestination = "home"
+                ) {
 
-                    // HOME
+                    // ✅ HOME SCREEN
                     composable("home") {
                         HomeScreen(
                             viewModel = homeViewModel,
@@ -45,7 +49,6 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("detail/$movieId")
                             },
                             onSeeAllClick = { genreId, genreName ->
-                                // encode genreName for route safety (simple replace of spaces)
                                 val safeName = genreName.replace(" ", "%20")
                                 navController.navigate("genre/$genreId/$safeName")
                             },
@@ -55,10 +58,12 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // DETAIL
+                    // ✅ DETAIL SCREEN
                     composable(
                         route = "detail/{movieId}",
-                        arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+                        arguments = listOf(
+                            navArgument("movieId") { type = NavType.IntType }
+                        )
                     ) { backStackEntry ->
                         val movieId = backStackEntry.arguments?.getInt("movieId") ?: 0
                         DetailScreen(
@@ -71,17 +76,18 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // SEARCH
+                    // ✅ SEARCH SCREEN (FIXED)
                     composable("search") {
                         SearchScreen(
-                            repo = repo,
+                            viewModel = searchViewModel,
                             onMovieClick = { movieId ->
                                 navController.navigate("detail/$movieId")
-                            }
+                            },
+                            onBack = { navController.popBackStack() }
                         )
                     }
 
-                    // GENRE (See All)
+                    // ✅ GENRE SCREEN
                     composable(
                         route = "genre/{genreId}/{genreName}",
                         arguments = listOf(
@@ -91,14 +97,16 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val genreId = backStackEntry.arguments?.getInt("genreId") ?: 0
                         val rawName = backStackEntry.arguments?.getString("genreName") ?: ""
-                        // decode any simple encoding
                         val genreName = rawName.replace("%20", " ")
+
                         GenreScreen(
                             genreId = genreId,
                             genreName = genreName,
                             repo = repo,
                             onBack = { navController.popBackStack() },
-                            onMovieClick = { id -> navController.navigate("detail/$id") }
+                            onMovieClick = { id ->
+                                navController.navigate("detail/$id")
+                            }
                         )
                     }
                 }

@@ -12,7 +12,7 @@ android {
     }
 
     namespace = "com.viona.roxflix"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.viona.roxflix"
@@ -57,6 +57,7 @@ kotlin {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material-icons-extended")
 
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     implementation("androidx.compose.ui:ui")
@@ -80,6 +81,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
 
 
+
+
     // Compose & Material3
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     implementation("androidx.compose.material3:material3")
@@ -89,6 +92,13 @@ dependencies {
 // Retrofit + Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Lottie for Compose
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
+// If you don't already have Coil:
+    implementation("io.coil-kt:coil-compose:2.3.0")
+// Optional: kotlin coroutines (likely already present)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
 // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")

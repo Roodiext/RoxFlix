@@ -1,207 +1,234 @@
 package com.viona.roxflix.ui.screens
 
-import androidx.compose.foundation.Image
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.viona.roxflix.data.repository.MovieRepository
-import kotlinx.coroutines.launch
+import com.viona.roxflix.ui.components.LottieEmptyState
+import com.viona.roxflix.ui.components.RecentSearchItem
+import com.viona.roxflix.ui.components.SearchResultItem
+import com.viona.roxflix.ui.components.VoiceSearchButton
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(
-    repo: MovieRepository,
+    viewModel: SearchViewModel,
     onMovieClick: (Int) -> Unit,
     onBack: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
-    var results by remember { mutableStateOf(emptyList<com.viona.roxflix.data.model.Movie>()) }
-    var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    val focusManager = LocalFocusManager.current
 
-    val scope = rememberCoroutineScope()
-    val keyboard = LocalSoftwareKeyboardController.current
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Search") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Clear, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-        ) {
-
-            // ✅ SEARCH BAR
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = { Text("Search movies...") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = {
-                            query = ""
-                            results = emptyList()
-                        }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
-                        }
-                    }
-                },
-                keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions.Default.copy(
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Search
-                ),
-                keyboardActions = androidx.compose.ui.text.input.KeyboardActions(
-                    onSearch = {
-                        if (query.isNotBlank()) {
-                            keyboard?.hide()
-                            loading = true
-                            error = null
-                            scope.launch {
-                                try {
-                                    val resp = repo.search(query)
-                                    results = resp.results
-                                } catch (e: Exception) {
-                                    error = e.localizedMessage ?: "Search failed"
-                                } finally {
-                                    loading = false
-                                }
-                            }
-                        }
-                    }
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            when {
-                loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                error != null -> {
-                    Text(
-                        text = error!!,
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                else -> {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(results) { movie ->
-                            SearchResultCard(
-                                title = movie.title ?: "-",
-                                overview = movie.overview ?: "No description available",
-                                posterPath = movie.poster_path ?: "",
-                                rating = movie.vote_average ?: 0.0,
-                                year = movie.release_date?.take(4) ?: "-",
-                                onClick = { onMovieClick(movie.id) }
-                            )
-                        }
-                    }
-                }
+    // Launcher for voice recognition result
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val heard = matches?.firstOrNull()
+            if (!heard.isNullOrBlank()) {
+                viewModel.updateQuery(heard)
+                viewModel.performSearchNow()
             }
         }
     }
-}
 
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Text("Search", style = MaterialTheme.typography.titleMedium)
+            },
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }
+        )
 
-// ✅ CARD MODEL BARU - 1 COLUMN HORIZONTAL
-@Composable
-fun SearchResultCard(
-    title: String,
-    overview: String,
-    posterPath: String,
-    rating: Double,
-    year: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Row(
-            modifier = Modifier.padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+    }) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(12.dp)
         ) {
-            AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500$posterPath",
-                contentDescription = title,
-                modifier = Modifier
-                    .width(90.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
+            // SEARCH ROW
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = viewModel.query,
+                    onValueChange = { viewModel.updateQuery(it) },
+                    placeholder = { Text("Search movies, actors...") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    singleLine = true,
+                    trailingIcon = {
+                        if (viewModel.query.isNotBlank()) {
+                            IconButton(onClick = { viewModel.updateQuery("") }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            focusManager.clearFocus()
+                            viewModel.performSearchNow()
+                        }
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                        focusedBorderColor = MaterialTheme.colorScheme.primary
+                    )
+                )
 
-            Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-            Column(
-                modifier = Modifier.fillMaxHeight().weight(1f)
+                // Voice button
+                VoiceSearchButton(onStartVoice = {
+                    // launch Android speech recognizer
+                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
+                        putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
+                    }
+                    launcher.launch(intent)
+                })
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Recent searches (swipe-to-delete)
+            if (viewModel.recentSearches.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Recent", fontWeight = FontWeight.Bold)
+                    TextButton(onClick = { viewModel.clearRecents() }) {
+                        Text("Clear all")
+                    }
+                }
+                Column {
+                    viewModel.recentSearches.forEach { s ->
+                        RecentSearchItem(
+                            query = s,
+                            onClick = {
+                                viewModel.updateQuery(it)
+                                viewModel.performSearchNow()
+                            },
+                            onDelete = { viewModel.removeRecent(it) }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Genre chips
+            val demoGenres = listOf(28 to "Action", 12 to "Adventure", 16 to "Animation", 35 to "Comedy", 18 to "Drama")
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
+                demoGenres.forEach { (id, name) ->
+                    val selected = viewModel.selectedGenres.contains(id)
+                    val bg by animateColorAsState(
+                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        label = "Chip background color"
+                    )
+                    AssistChip(
+                        onClick = { viewModel.toggleGenre(id) },
+                        label = { Text(name) },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = bg)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Results or empty state
+            if (viewModel.loading && viewModel.results.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (!viewModel.loading && viewModel.results.isEmpty()) {
+                LottieEmptyState(
+                    modifier = Modifier.fillMaxWidth().height(260.dp),
+                    message = if (viewModel.query.isBlank()) "Try searching movies or actors" else "No results for '''${viewModel.query}'''"
                 )
+            } else {
+                // result list with infinite scroll
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(viewModel.results) { index, movie ->
+                        SearchResultItem(
+                            movie = movie,
+                            onClick = { onMovieClick(movie.id) },
+                            onLongPress = { selected ->
+                                // show quick preview dialog; handled inside SearchResultItem
+                            }
+                        )
+                        // check to load more
+                        LaunchedEffect(index) {
+                            viewModel.loadMoreIfNeeded(lastVisibleIndex = index)
+                        }
+                    }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = overview,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = "⭐ ${"%.1f".format(rating)}  |  $year",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                    // loading footer
+                    item {
+                        if (viewModel.loading) {
+                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(modifier = Modifier.padding(12.dp))
+                            }
+                        }
+                    }
+                }
             }
         }
     }
