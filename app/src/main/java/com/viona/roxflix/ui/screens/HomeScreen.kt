@@ -1,23 +1,32 @@
 package com.viona.roxflix.ui.screens
 
+import android.app.Activity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.viona.roxflix.R
 import com.viona.roxflix.ui.components.MovieItemCard
 import com.viona.roxflix.ui.components.HeroCarousel
 import com.viona.roxflix.ui.components.PremiumSearchBar
-
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.viona.roxflix.utils.LanguageManager
+import com.viona.roxflix.utils.translateGenre
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,14 +37,17 @@ fun HomeScreen(
     onSearchClick: () -> Unit
 ) {
 
-    var searchText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "ROXFLIX",
+                        text = stringResource(id = R.string.app_name),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -57,24 +69,55 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
 
+            // SEARCH + LANGUAGE BUTTON + HERO
             item {
                 Column(modifier = Modifier.fillMaxWidth()) {
 
-                    PremiumSearchBar(
+                    Row(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        onClick = { onSearchClick() }
-                    )
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        // SEARCH BAR
+                        Box(modifier = Modifier.weight(1f)) {
+                            PremiumSearchBar(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { onSearchClick() }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        // LANGUAGE BUTTON
+                        IconButton(onClick = { showLanguageDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = "Change Language",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    HeroCarousel(items = viewModel.heroMovies, onItemClick = onMovieClick)
-                    Spacer(Modifier.height(8.dp))
+                    HeroCarousel(
+                        items = viewModel.heroMovies,
+                        onItemClick = onMovieClick
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
+            // GENRE LIST
             items(viewModel.genres) { genre ->
+
+                val translatedGenre = translateGenre(context, genre.name)
+
                 Column(Modifier.fillMaxWidth()) {
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -82,13 +125,22 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(genre.name, color = MaterialTheme.colorScheme.onBackground)
-                        TextButton(onClick = { onSeeAllClick(genre.id, genre.name) }) {
-                            Text("See All", color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            text = translatedGenre,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+
+                        TextButton(
+                            onClick = { onSeeAllClick(genre.id, genre.name) }
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.see_all),
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
 
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -109,4 +161,53 @@ fun HomeScreen(
             }
         }
     }
+
+    // ✅ LANGUAGE DIALOG (2 Column Flags)
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.choose_language)) },
+            text = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // 🇮🇩 Bahasa Indonesia
+                    Image(
+                        painter = painterResource(id = R.drawable.id),
+                        contentDescription = "Bahasa Indonesia",
+                        modifier = Modifier
+                            .size(70.dp)
+                            .clickable {
+                                LanguageManager.saveLanguage(context, "id")
+                                showLanguageDialog = false
+                                activity?.recreate()
+                            }
+                    )
+
+                    // 🇬🇧 English
+                    Image(
+                        painter = painterResource(id = R.drawable.en),
+                        contentDescription = "English",
+                        modifier = Modifier
+                            .size(70.dp)
+                            .clickable {
+                                LanguageManager.saveLanguage(context, "en")
+                                showLanguageDialog = false
+                                activity?.recreate()
+                            }
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {}
+        )
+    }
+
+
+
+
 }

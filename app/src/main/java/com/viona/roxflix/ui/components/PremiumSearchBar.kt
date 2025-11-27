@@ -15,17 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.Color
+import com.viona.roxflix.R
 
 @Composable
 fun PremiumSearchBar(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    // interaction source untuk clickable (dipakai tanpa rememberRipple)
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
@@ -42,7 +42,6 @@ fun PremiumSearchBar(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(14.dp)
             )
-            // pakai LocalIndication.current (modern) untuk ripple/indication
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,
@@ -57,7 +56,7 @@ fun PremiumSearchBar(
         ) {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.search),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp)
             )
@@ -65,7 +64,7 @@ fun PremiumSearchBar(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = "Search movies, genres...",
+                text = stringResource(R.string.search_placeholder_home),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium

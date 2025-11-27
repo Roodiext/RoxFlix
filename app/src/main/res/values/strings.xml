@@ -1,3 +1,68 @@
 <resources>
-    <string name="app_name">RoxFlix</string>
+    <string name="app_name">ROXFLIX</string>
+    <string name="see_all">Lihat Semua</string>
+    <string name="details">Detail</string>
+    <string name="back">Kembali</string>
+    <string name="watch_trailer">Tonton Trailer</string>
+    <string name="synopsis">Sinopsis</string>
+    <string name="cast">Pemeran</string>
+    <string name="similar_movies">Film Serupa</string>
+    <string name="error_failed_load">Gagal memuat data</string>
+    <string name="no_movies_found">Tidak ada film ditemukan</string>
+
+    <string name="search_title">Pencarian</string>
+    <string name="search_placeholder">Cari film, aktor...</string>
+    <string name="clear">Hapus</string>
+    <string name="recent">Terakhir Dicari</string>
+    <string name="clear_all">Hapus semua</string>
+    <string name="voice_prompt">Silakan bicara...</string>
+
+    <!-- Genres -->
+    <string name="genre_action">Aksi</string>
+    <string name="genre_adventure">Petualangan</string>
+    <string name="genre_animation">Animasi</string>
+    <string name="genre_comedy">Komedi</string>
+    <string name="genre_drama">Drama</string>
+
+    <!-- Empty -->
+    <string name="search_empty_hint">Coba cari film atau aktor</string>
+    <string name="search_no_results">Tidak ada hasil untuk "%1$s"</string>
+
+    <string name="unknown">Tidak diketahui</string>
+    <string name="no_overview">Tidak ada deskripsi</string>
+    <string name="rating_format">⭐ %1$s</string>
+
+    <string name="delete">Hapus</string>
+    <string name="search">Cari</string>
+    <string name="search_placeholder_home">Cari film, genre...</string>
+    <string name="voice_search">Pencarian Suara</string>
+    <string name="empty_state_default">Tidak ada hasil ditemukan</string>
+    <string name="read_more">Lihat selengkapnya</string>
+    <string name="show_less">Tutup</string>
+    <string name="unknown_year">Tidak diketahui</string>
+    <string name="preview_title">Pratinjau</string>
+    <string name="open_button">Buka</string>
+    <string name="close_button">Tutup</string>
+    <string name="rating_label">⭐ %1$s</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="select_language">Pilih bahasa aplikasi:</string>
+
+
+
+    <string name="genre_crime">Kriminal</string>
+    <string name="genre_documentary">Dokumenter</string>
+    <string name="genre_family">Keluarga</string>
+    <string name="genre_fantasy">Fantasi</string>
+    <string name="genre_history">Sejarah</string>
+    <string name="genre_horror">Horor</string>
+    <string name="genre_music">Musik</string>
+    <string name="genre_mystery">Misteri</string>
+    <string name="genre_romance">Romansa</string>
+    <string name="genre_scifi">Fiksi Ilmiah</string>
+    <string name="genre_tvmovie">Film TV</string>
+    <string name="genre_thriller">Thriller</string>
+    <string name="genre_war">Perang</string>
+    <string name="genre_western">Koboi</string>
+
+
 </resources>

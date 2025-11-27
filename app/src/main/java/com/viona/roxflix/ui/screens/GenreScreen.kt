@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.viona.roxflix.R
 import com.viona.roxflix.data.repository.MovieRepository
 import com.viona.roxflix.ui.components.MovieItemCard
 
@@ -24,6 +26,10 @@ fun GenreScreen(
     onBack: () -> Unit,
     onMovieClick: (Int) -> Unit
 ) {
+    // ✅ Localized strings (must be read inside composable, not coroutine)
+    val backLabel = stringResource(id = R.string.back)
+    val noMoviesLabel = stringResource(id = R.string.no_movies_found)
+
     var movies by remember { mutableStateOf(emptyList<com.viona.roxflix.data.model.Movie>()) }
     var loading by remember { mutableStateOf(true) }
 
@@ -39,10 +45,10 @@ fun GenreScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(genreName) },
+                title = { Text(text = genreName) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = backLabel)
                     }
                 }
             )
@@ -57,6 +63,22 @@ fun GenreScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        // ✅ No movies state
+        if (movies.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = noMoviesLabel,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
             return@Scaffold
         }

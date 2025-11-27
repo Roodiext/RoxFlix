@@ -19,7 +19,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.viona.roxflix.R
 
 @Composable
 fun VoiceSearchButton(onStartVoice: () -> Unit) {
@@ -36,7 +38,7 @@ fun VoiceSearchButton(onStartVoice: () -> Unit) {
         label = "pulseAnim"
     )
 
-    // ✅ Dynamic gradient (auto matches theme)
+    // ✅ Gradient adapts automatically to theme
     val isLight = !isSystemInDarkTheme()
     val gradientColors = if (isLight) {
         listOf(Color(0xFFE50914), Color(0xFFB20710))
@@ -58,7 +60,7 @@ fun VoiceSearchButton(onStartVoice: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.Filled.Mic,
-            contentDescription = "Voice Search",
+            contentDescription = stringResource(R.string.voice_search),
             tint = Color.White,
             modifier = Modifier.size(28.dp)
         )

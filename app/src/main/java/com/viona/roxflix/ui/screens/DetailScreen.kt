@@ -14,15 +14,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.viona.roxflix.R
 import com.viona.roxflix.data.repository.MovieRepository
 import com.viona.roxflix.ui.components.CastItemSimple
 import com.viona.roxflix.ui.components.ExpandableText
 import com.viona.roxflix.ui.components.GenreChip
 import com.viona.roxflix.ui.components.MovieItemCard
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
@@ -35,6 +37,15 @@ fun DetailScreen(
     onWatchTrailer: ((String) -> Unit)? = null,
     onMovieSelected: (Int) -> Unit = {}
 ) {
+    // ---- Strings must be read in composable scope (not inside coroutines) ----
+    val detailsLabel = stringResource(id = R.string.details)
+    val backLabel = stringResource(id = R.string.back)
+    val watchTrailerLabel = stringResource(id = R.string.watch_trailer)
+    val synopsisLabel = stringResource(id = R.string.synopsis)
+    val castLabel = stringResource(id = R.string.cast)
+    val similarMoviesLabel = stringResource(id = R.string.similar_movies)
+    val errorFailedLoad = stringResource(id = R.string.error_failed_load)
+
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var detail by remember { mutableStateOf<com.viona.roxflix.data.model.MovieDetail?>(null) }
@@ -43,6 +54,7 @@ fun DetailScreen(
 
     val scope = rememberCoroutineScope()
 
+    // Load data in LaunchedEffect (coroutine) — do NOT call composables inside here.
     LaunchedEffect(movieId) {
         loading = true
         try {
@@ -51,7 +63,8 @@ fun DetailScreen(
             similar = repo.getSimilarMovies(movieId).results
         } catch (e: Exception) {
             e.printStackTrace()
-            error = e.localizedMessage ?: "Failed to load details"
+            // Use pre-read string variable (errorFailedLoad) instead of calling stringResource here.
+            error = e.localizedMessage ?: errorFailedLoad
         } finally {
             loading = false
         }
@@ -60,10 +73,12 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(detail?.title ?: "Details") },
+                title = {
+                    Text(text = detail?.title ?: detailsLabel)
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = backLabel)
                     }
                 }
             )
@@ -135,7 +150,7 @@ fun DetailScreen(
                                 try {
                                     val key = repo.getVideos(movieId).results.firstOrNull()?.key ?: ""
                                     if (key.isNotBlank()) onWatchTrailer?.invoke(key)
-                                } catch (_: Exception) { }
+                                } catch (_: Exception) { /* optionally show snackbar */ }
                             }
                         },
                         modifier = Modifier
@@ -144,7 +159,7 @@ fun DetailScreen(
                         shape = RoundedCornerShape(24.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE50914))
                     ) {
-                        Text(text = "Watch Trailer")
+                        Text(text = watchTrailerLabel)
                     }
                 }
 
@@ -163,14 +178,14 @@ fun DetailScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(text = "Synopsis", style = MaterialTheme.typography.titleMedium)
+                    Text(text = synopsisLabel, style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     ExpandableText(m.overview ?: "-")
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     if (cast.isNotEmpty()) {
-                        Text(text = "Cast", style = MaterialTheme.typography.titleMedium)
+                        Text(text = castLabel, style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             items(cast) { actor ->
@@ -186,13 +201,11 @@ fun DetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     if (similar.isNotEmpty()) {
-                        Text(text = "Similar Movies", style = MaterialTheme.typography.titleMedium)
+                        Text(text = similarMoviesLabel, style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             items(similar) { s ->
-
-                                // ✅ ✅ FIX — Gunakan parameter yang benar
                                 MovieItemCard(
                                     posterPath = s.poster_path ?: "",
                                     title = s.title,

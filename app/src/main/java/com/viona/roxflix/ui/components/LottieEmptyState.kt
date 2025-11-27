@@ -11,20 +11,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.viona.roxflix.R
 
 @Composable
 fun LottieEmptyState(
     modifier: Modifier = Modifier,
-    message: String
+    message: String = stringResource(R.string.empty_state_default)
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // In a real app, you would have a Lottie animation here.
-        // For now, we'll just use a Spacer as a placeholder.
+        // Placeholder for Lottie Animation
         Spacer(modifier = Modifier.height(150.dp))
+
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
