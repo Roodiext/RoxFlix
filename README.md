@@ -63,10 +63,17 @@ Semua screenshot tersedia untuk 2 bahasa: **English & Indonesian**.
 
 ---
 
-### 🔎 **Search Screen**
-| Indonesian | English |
-|-----------|----------|----------|----------|
-| ![](screenshots/search/search-id.jpg) | ![](screenshots/search/search-id2.jpg) | ![](screenshots/search/search-en.jpg) | ![](screenshots/search/search-en2.jpg) |
+## 🔎 **Search Screen**  
+
+### English
+| 1 | 2 |
+|---|---|
+| ![](screenshots/search/search-en.jpg) | ![](screenshots/search/search-en2.jpg) |
+
+### Indonesian
+| 1 | 2 |
+|---|---|
+| ![](screenshots/search/search-id.jpg) | ![](screenshots/search/search-id2.jpg) |
 
 ---
 
@@ -84,8 +91,15 @@ Semua screenshot tersedia untuk 2 bahasa: **English & Indonesian**.
 
 ---
 
-### 📱 **Responsive / Landscape Preview**
-![](screenshots/responsive/l1.jpg)
+## 📱 **Responsive Mode (Landscape)**  
+
+| l1 | l2 | l3 | l4 |
+|----|----|----|----|
+| ![](screenshots/responsive/l1.jpg) | ![](screenshots/responsive/l2.jpg) | ![](screenshots/responsive/l3.jpg) | ![](screenshots/responsive/l4.jpg) |
+
+| l5 | l6 | l7 | l8 |
+|----|----|----|----|
+| ![](screenshots/responsive/l5.jpg) | ![](screenshots/responsive/l6.jpg) | ![](screenshots/responsive/l7.jpg) | ![](screenshots/responsive/l8.jpg) |
 
 ---
 
