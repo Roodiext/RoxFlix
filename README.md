@@ -88,6 +88,23 @@ Semua screenshot tersedia untuk 2 bahasa: **English & Indonesian**.
 ![](screenshots/responsive/home_landscape.jpg)
 
 ---
+
+📌 **Roadmap Pengembangan**
+ -Favorite Movies (Local DB / Room)
+ -Download Poster
+ -YouTube Trailer inside Detail Screen
+ -More Genre Filters
+ -Enhanced Animation
+
+---
+
+**Credits**
+The Movie Database (TMDB)
+Jetpack Compose Team
+Material UI
+
+---
+
 ## 👨‍🎨 Developer
 **Roodiext**  
 A passionate Android developer exploring Jetpack Compose & modern mobile UI.
