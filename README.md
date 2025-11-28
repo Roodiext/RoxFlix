@@ -59,33 +59,33 @@ Semua screenshot tersedia untuk 2 bahasa: **English & Indonesian**.
 ### 🏠 **Home Screen**
 | Indonesian | English |
 |-----------|----------|
-| ![](screenshots/home/home_id.jpg) | ![](screenshots/home/home_en.jpg) |
+| ![](screenshots/home/home-id.jpg) | ![](screenshots/home/home-en.jpg) |
 
 ---
 
 ### 🔎 **Search Screen**
 | Indonesian | English |
-|-----------|----------|
-| ![](screenshots/search/search_id.jpg) | ![](screenshots/search/search_en.jpg) |
+|-----------|----------|----------|----------|
+| ![](screenshots/search/search-id.jpg) | ![](screenshots/search/search-id2.jpg) | ![](screenshots/search/search-en.jpg) | ![](screenshots/search/search-en2.jpg) |
 
 ---
 
 ### 🎭 **Genre Screen**
 | Indonesian | English |
 |-----------|----------|
-| ![](screenshots/genre/genre_id.jpg) | ![](screenshots/genre/genre_en.jpg) |
+| ![](screenshots/genre/genre-id.jpg) | ![](screenshots/genre/genre-en.jpg) |
 
 ---
 
 ### 🎬 **Detail Screen**
 | Indonesian | English |
 |-----------|----------|
-| ![](screenshots/detail/detail_id.jpg) | ![](screenshots/detail/detail_en.jpg) |
+| ![](screenshots/detail/detail-id.jpg) | ![](screenshots/detail/detail-en.jpg) |
 
 ---
 
 ### 📱 **Responsive / Landscape Preview**
-![](screenshots/responsive/home_landscape.jpg)
+![](screenshots/responsive/l1.jpg)
 
 ---
 
